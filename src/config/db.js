@@ -1,20 +1,28 @@
 // src/config/db.js
 const mongoose = require("mongoose");
 
+let isConnected = false;
+
 async function connectDB() {
   const uri = process.env.MONGODB_URI;
 
   if (!uri) {
-    console.error("MONGODB_URI belum diset di .env");
-    process.exit(1);
+    console.error("MONGODB_URI belum diset di environment (Vercel / .env)");
+    return; // JANGAN process.exit, cukup keluar fungsi
+  }
+
+  if (isConnected) {
+    // Supaya tidak connect ulang tiap request di Vercel
+    return;
   }
 
   try {
-    await mongoose.connect(uri);
-    console.log("Terhubung ke MongoDB Atlas");
+    const conn = await mongoose.connect(uri);
+    isConnected = true;
+    console.log("Terhubung ke MongoDB Atlas di:", conn.connection.host);
   } catch (err) {
     console.error("Gagal konek MongoDB:", err.message);
-    process.exit(1);
+    // di serverless, cukup log error-nya
   }
 }
 
