@@ -6,23 +6,25 @@ let isConnected = false;
 async function connectDB() {
   const uri = process.env.MONGODB_URI;
 
+  console.log("DEBUG DB: MONGODB_URI ada?", !!uri);
+
   if (!uri) {
     console.error("MONGODB_URI belum diset di environment (Vercel / .env)");
-    return; // JANGAN process.exit, cukup keluar fungsi
+    return;
   }
 
   if (isConnected) {
-    // Supaya tidak connect ulang tiap request di Vercel
     return;
   }
 
   try {
-    const conn = await mongoose.connect(uri);
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000, // biar error cepat keluar
+    });
     isConnected = true;
-    console.log("Terhubung ke MongoDB Atlas di:", conn.connection.host);
+    console.log("Terhubung ke MongoDB Atlas di host:", conn.connection.host);
   } catch (err) {
-    console.error("Gagal konek MongoDB:", err.message);
-    // di serverless, cukup log error-nya
+    console.error("MongoDB connection error:", err.name, err.message);
   }
 }
 
