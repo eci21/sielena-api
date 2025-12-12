@@ -1,23 +1,12 @@
-// src/routes/quizzes.routes.js
 const express = require("express");
+const controller = require("../controllers/quizzes.controller");
+
 const router = express.Router();
-const {
-  getQuizzes,
-  getQuizById,
-  createQuiz,
-  addQuestion
-} = require("../controllers/quizzes.controller");
 
-// daftar kuis
-router.get("/", getQuizzes);
-
-// bikin kuis baru (opsional, bisa dari Postman)
-router.post("/", createQuiz);
-
-// detail satu kuis (termasuk soal)
-router.get("/:id", getQuizById);
-
-// tambah soal ke kuis tertentu
-router.post("/:id/questions", addQuestion);
+router.get("/", controller.getAll);
+router.get("/:id", controller.getOne);
+router.post("/", controller.create);
+router.put("/:id", controller.update);
+router.post("/:id/questions", controller.addQuestion);
 
 module.exports = router;
