@@ -1,19 +1,23 @@
 const mongoose = require("mongoose");
 
+let cached = global._mongoose;
+if (!cached) cached = global._mongoose = { conn: null, promise: null };
+
 async function connectDB() {
   const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    console.error("MONGODB_URI belum diset di environment");
-    throw new Error("MONGODB_URI missing");
+  if (!uri) throw new Error("MONGODB_URI missing");
+
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 20000,
+      socketTimeoutMS: 45000,
+    });
   }
 
-  try {
-    await mongoose.connect(uri);
-    console.log("Terhubung ke MongoDB Atlas");
-  } catch (err) {
-    console.error("MongoDB connection error:", err.name, err.message);
-    throw err;
-  }
+  cached.conn = await cached.promise;
+  return cached.conn;
 }
 
 module.exports = { connectDB };
