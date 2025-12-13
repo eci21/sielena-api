@@ -1,9 +1,15 @@
-const { customAlphabet } = require("nanoid");
 const Quiz = require("../models/Quiz");
 const QuizSession = require("../models/QuizSession");
 const QuizResult = require("../models/QuizResult");
 
-const nanoid = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
+function generateCode(length = 6) {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < length; i++) {
+    out += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return out;
+}
 
 // POST /api/quiz-sessions
 // Body: { quizId, schoolName, className }
@@ -14,7 +20,7 @@ exports.createSession = async (req, res) => {
     const quiz = await Quiz.findById(quizId);
     if (!quiz) return res.status(404).json({ message: "Quiz tidak ditemukan" });
 
-    const code = nanoid();
+    const code = generateCode(6);
     const session = await QuizSession.create({
       code,
       quiz: quiz._id,
